@@ -28,13 +28,24 @@ export default function Home() {
   ) => {
     const name = e.target.name;
     const value = e.target.value;
-
-    setValues(prevState => (
-      {
-        ...prevState,
-        [name]: value,
-      }
-    ))
+    if (name === "unit") {
+      const newValue = convert(
+        values.value,
+        values.unit,
+        value || "in"
+      );
+      setValues({
+        ...values,
+        value: String(newValue),
+        unit: value,
+      })
+    } else
+      setValues(prevState => (
+        {
+          ...prevState,
+          [name]: value,
+        }
+      ))
   };
 
   return (
