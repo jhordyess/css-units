@@ -1,0 +1,17 @@
+{
+  "name": "css-units",
+  "image": "jhordyess/node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dsznajder.es7-react-js-snippets"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
+  "postCreateCommand": "bash config.sh",
+  "remoteUser": "node"
+}
