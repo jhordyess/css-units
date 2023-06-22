@@ -1,4 +1,4 @@
-import { create, all, map, abs } from "mathjs";
+import { create, all, map, abs, leftShift } from "mathjs";
 import { useEffect, useState } from "react";
 
 //TODO improve bundle 
@@ -25,23 +25,23 @@ const convert = (value: string, unit: string, newUnit: string) => String(
 const rangeValues: {
   [key: string]: string[]
 } = {
-  "px": ["0", "16", "32", "64", "96", "128", "192", "256", "384"],
-  "cm": ["0", "0.5", "1", "1.5", "2.54", "3", "5", "7", "10"],
-  "mm": ["0", "5", "10", "15", "25.4", "30", "50", "70", "100"],
-  "q": ["0", "20", "40", "60", "101.6", "120", "200", "280", "400"],
-  "in": ["0", "0.25", "0.5", "0.75", "1", "1.5", "2", "2.5", "4"],
-  "pc": ["0", "1", "2", "4", "6", "8", "12", "16", "24"],
-  "point": ["0", "12", "24", "48", "72", "96", "144", "192", "288"]
+  "cm": ["0", "18.9", "37.8", "56.69", "96", "113.39", "188.98", "264.57", "377.95", "384"],//1 extra value
+  "mm": ["0", "18.9", "37.8", "56.69", "96", "113.39", "188.98", "264.57", "377.95", "384"],//1 extra value
+  "q": ["0", "18.9", "37.8", "56.69", "96", "113.39", "188.98", "264.57", "377.95", "384"],//1 extra value
+  "in": ["0", "24", "48", "72", "96", "144", "192", "240", "384"],
+  "pc": ["0", "16", "32", "64", "96", "128", "192", "256", "384"],
+  "point": ["0", "16", "32", "64", "96", "128", "192", "256", "384"],
+  "px": ["0", "16", "32", "64", "96", "128", "192", "256", "384"]
 }
 
 enum absoluteLength {
-  pixel = "px",
   centimeter = "cm",
   millimeter = "mm",
   quarterMillimeter = "q",
   inch = "in",
   pica = "pc",
   point = "point",
+  pixel = "px",
 }
 
 enum sideE {
@@ -49,114 +49,76 @@ enum sideE {
 }
 
 export default function Home() {
-  const [lengthLeft, setLengthLeft] = useState<
-    {
-      number: string,
-      unit: absoluteLength
+  const [lengthLeft, setLengthLeft] = useState({
+    number: "96",
+    unit: absoluteLength.pixel
+  });
 
-    }>({ number: "96", unit: absoluteLength.pixel }
+  const [lengthRight, setLengthRight] = useState({
+    number: "1",
+    unit: absoluteLength.inch
+  });
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, side: sideE) => {
+    const { value: elemValue } = e.target;
+
+    const convertedNumber = convert(
+      elemValue,
+      side === sideE.left ? lengthLeft.unit : lengthRight.unit,
+      side === sideE.right ? lengthLeft.unit : lengthRight.unit
     );
 
-  const [lengthRight, setLengthRight] = useState<
-    {
-      number: string,
-      unit: absoluteLength
-    }
-  >({ number: "1", unit: absoluteLength.inch }
-  );
+    setLengthLeft((prev) => ({
+      ...prev,
+      number: side === sideE.left ? elemValue : convertedNumber,
+    }));
 
-  const handleNumberChange = (
-    e: React.ChangeEvent<HTMLInputElement>, side: sideE
-  ) => {
-    const { value: elemValue } = e.target;
-    if (side === sideE.left) {
-      setLengthLeft((prev) => ({
-        ...prev,
-        number: elemValue,
-      }));
-      setLengthRight((prev) => ({
-        ...prev,
-        number: convert(
-          elemValue,
-          lengthLeft.unit,
-          lengthRight.unit,
-        ),
-      }));
-    } else if (side === sideE.right) {
-      setLengthRight((prev) => ({
-        ...prev,
-        number: elemValue,
-      }));
-      setLengthLeft((prev) => ({
-        ...prev,
-        number: convert(
-          elemValue,
-          lengthRight.unit,
-          lengthLeft.unit,
-        ),
-      }));
-    }
+    setLengthRight((prev) => ({
+      ...prev,
+      number: side === sideE.right ? elemValue : convertedNumber,
+    }));
   };
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>, side: sideE) => {
     const { value: elemValue } = e.target;
+
     if (side === sideE.left) {
-      const lenLeftUnit = lengthLeft.unit;
       if (lengthRight.unit === elemValue) {
+        setLengthRight((prev) => ({
+          ...prev,
+          unit: lengthLeft.unit,
+          number: convert(lengthLeft.number, lengthRight.unit, lengthLeft.unit),
+        }));
+      } else {
+        setLengthRight((prev) => ({
+          ...prev,
+          number: convert(lengthLeft.number, elemValue, lengthRight.unit),
+        }));
+      }
+
+      setLengthLeft((prev) => ({
+        ...prev,
+        unit: elemValue as absoluteLength,
+      }));
+    } else if (side === sideE.right) {
+      if (lengthLeft.unit === elemValue) {
         setLengthLeft((prev) => ({
           ...prev,
           unit: lengthRight.unit
         }));
-        setLengthRight((prev) => ({
-          ...prev,
-          unit: lenLeftUnit,
-          number: convert(
-            lengthLeft.number,
-            lengthRight.unit,
-            lenLeftUnit,
-          ),
-        }));
-      }
-      else {
-        setLengthLeft((prev) => ({
-          ...prev,
-          unit: elemValue as absoluteLength,
-        }));
-        setLengthRight((prev) => ({
-          ...prev,
-          number: convert(
-            lengthLeft.number,
-            elemValue,
-            lengthRight.unit,
-          ),
-        }));
-      }
-    } else if (side === sideE.right) {
-      if (lengthLeft.unit === elemValue) {
-        const lenRightUnit = lengthRight.unit;
-        setLengthRight((prev) => ({
-          ...prev,
-          unit: lengthLeft.unit,
-          number: convert(
-            lengthLeft.number,
-            lenRightUnit,
-            lengthLeft.unit,
-          ),
-        }));
-        setLengthLeft((prev) => ({
-          ...prev,
-          unit: lenRightUnit,
-        }));
-      } else
+
         setLengthRight((prev) => ({
           ...prev,
           unit: elemValue as absoluteLength,
-          number: convert(
-            lengthRight.number,
-            lengthRight.unit,
-            elemValue,
-          ),
+          number: convert(lengthLeft.number, lengthRight.unit, elemValue),
         }));
+      } else {
+        setLengthRight((prev) => ({
+          ...prev,
+          unit: elemValue as absoluteLength,
+          number: convert(lengthRight.number, lengthRight.unit, elemValue),
+        }));
+      }
     }
   };
   return (
@@ -194,6 +156,41 @@ export default function Home() {
                 <option value={value} title={key} key={value}>{value}</option>
               )}
             </select>
+          </div>
+        </div>
+        <div className="w-full mt-6">
+          <div>
+            <input
+              className="w-full"
+              type="range"
+              list="markersL"
+              max="384"
+              min="0"
+              value={lengthLeft.number}
+            // onChange={handleChange}
+            />
+            <datalist id="markersL" className="flex justify-around">
+              {rangeValues[lengthLeft.unit].map((item, index) =>
+                <option key={"rgnL-" + index} value={item} ></option>
+              )}
+            </datalist>
+          </div>
+
+          <div>
+            <input
+              className="w-full"
+              type="range"
+              list="markersR"
+              max="384"
+              min="0"
+              value={lengthRight.number}
+            // onChange={handleChange}
+            />
+            <datalist id="markersR" className="flex justify-around">
+              {rangeValues[lengthRight.unit].map((item, index) =>
+                <option key={"rgnR-" + index} value={item} ></option>
+              )}
+            </datalist>
           </div>
         </div>
         <div className="w-full overflow-x-auto border p-2">
