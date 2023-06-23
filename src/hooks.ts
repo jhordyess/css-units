@@ -21,16 +21,14 @@ const defConverterVals: converterState = {
 }
 
 export const useConverterHook = (initialState: converterState = defConverterVals) => {
-  const [leftField, setLeftField] = useState(initialState.leftField)
-
-  const [rightField, setRightField] = useState(initialState.rightField)
-
-  const [rangeField, setRangeField] = useState(initialState.rangeField)
+  const [fields, setFields] = useState(initialState)
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>, field: Field) => {
     const { value: inputValue } = e.target
 
     const isLeft = field === Field.Left // True is left, False is right
+
+    const { leftField, rightField } = fields
 
     const [sourceUnit, targetUnit] = isLeft
       ? [leftField.unit, rightField.unit]
@@ -38,78 +36,78 @@ export const useConverterHook = (initialState: converterState = defConverterVals
 
     const convertedValue = convert(inputValue, sourceUnit, targetUnit)
 
-    setLeftField(prev => ({
-      ...prev,
-      value: isLeft ? inputValue : convertedValue
-    }))
+    const [updatedLeftVal, updatedRightVal] = isLeft
+      ? [inputValue, convertedValue]
+      : [convertedValue, inputValue]
 
-    setRightField(prev => ({
-      ...prev,
-      value: isLeft ? convertedValue : inputValue
+    setFields(({ leftField, rightField, rangeField }) => ({
+      leftField: {
+        ...leftField,
+        value: updatedLeftVal
+      },
+      rightField: {
+        ...rightField,
+        value: updatedRightVal
+      },
+      rangeField
     }))
   }
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>, field: Field) => {
     const selectedUnit = e.target.value as LengthUnit
 
-    if (field === Field.Left) {
-      const isRightUnit = rightField.unit === selectedUnit
+    const { leftField, rightField } = fields
 
-      const convertedValue = convert(
-        leftField.value,
-        isRightUnit ? rightField.unit : selectedUnit,
-        isRightUnit ? leftField.unit : rightField.unit
-      )
+    const [isLeft, isOppositeField] =
+      field === Field.Left
+        ? [true, rightField.unit === selectedUnit]
+        : [false, leftField.unit === selectedUnit] // True is left, False is right
 
-      setRightField(prev => ({
-        ...prev,
-        value: convertedValue,
-        unit: isRightUnit ? leftField.unit : rightField.unit // lengthRight.unit unnecessary
-      }))
+    const [sourceValue, sourceUnit, targetUnit] = isLeft
+      ? [
+          leftField.value,
+          isOppositeField ? rightField.unit : selectedUnit,
+          isOppositeField ? leftField.unit : rightField.unit
+        ]
+      : [isOppositeField ? leftField.value : rightField.value, rightField.unit, selectedUnit]
 
-      setLeftField(prev => ({
-        ...prev,
-        unit: selectedUnit
-      }))
-    } else if (field === Field.Right) {
-      const isLeftUnit = leftField.unit === selectedUnit
+    const updatedRightVal = convert(sourceValue, sourceUnit, targetUnit)
 
-      const convertedValue = convert(
-        isLeftUnit ? leftField.value : rightField.value,
-        rightField.unit,
-        selectedUnit
-      )
+    const [updateLeftUnit, updateRightUnit] = isLeft
+      ? [selectedUnit, isOppositeField ? leftField.unit : rightField.unit] //rightField.unit unnecessary to update
+      : [isOppositeField ? rightField.unit : leftField.unit, selectedUnit] //leftField.unit unnecessary to update
 
-      setLeftField(prev => ({
-        ...prev,
-        unit: isLeftUnit ? rightField.unit : leftField.unit // lengthLeft.unit unnecessary
-      }))
-
-      setRightField(prev => ({
-        ...prev,
-        value: convertedValue,
-        unit: selectedUnit
-      }))
-    }
+    setFields(({ leftField, rightField, rangeField }) => ({
+      leftField: {
+        ...leftField,
+        unit: updateLeftUnit
+      },
+      rightField: {
+        ...rightField,
+        unit: updateRightUnit,
+        value: updatedRightVal
+      },
+      rangeField
+    }))
   }
 
   return {
     leftField: {
-      value: leftField.value,
+      value: fields.leftField.value,
       handleValueChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         handleValueChange(e, Field.Left)
       },
-      unit: leftField.unit,
+      unit: fields.leftField.unit,
       handleUnitChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
         handleUnitChange(e, Field.Left)
       }
     },
     rightField: {
-      value: rightField.value,
+      value: fields.rightField.value,
       handleValueChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         handleValueChange(e, Field.Right)
       },
-      unit: rightField.unit,
+      unit: fields.rightField.unit,
       handleUnitChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
         handleUnitChange(e, Field.Right)
       }
