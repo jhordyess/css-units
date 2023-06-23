@@ -1,26 +1,5 @@
-import { create, all, map, abs, leftShift } from "mathjs";
-import { useEffect, useState } from "react";
-
-//TODO improve bundle 
-const math = create(all);
-math.createUnit("q", math.unit(math.fraction(1, 40),
-  "cm"))
-math.createUnit("pc", math.unit(math.fraction(1, 6),
-  "in"))
-math.createUnit("point", math.unit(math.fraction(1, 72),
-  "in"))
-math.createUnit("px", math.unit(math.fraction(1, 96),
-  "in"))
-math.config({
-  number: "Fraction",
-});
-
-const convert = (value: string, unit: string, newUnit: string) => String(
-  math.number(
-    math.round(math
-      .evaluate(`${parseFloat(value)} ${unit} to ${newUnit}`)
-      .toNumeric(newUnit), 2)
-  ))
+import { LengthUnitArr, fixUnit } from "./utils"
+import { useConverterHook } from "./hooks"
 
 const rangeValues: {
   [key: string]: string[]
@@ -34,93 +13,9 @@ const rangeValues: {
   "px": ["0", "16", "32", "64", "96", "128", "192", "256", "384"]
 }
 
-enum absoluteLength {
-  centimeter = "cm",
-  millimeter = "mm",
-  quarterMillimeter = "q",
-  inch = "in",
-  pica = "pc",
-  point = "point",
-  pixel = "px",
-}
-
-enum sideE {
-  left, right
-}
-
 export default function Home() {
-  const [lengthLeft, setLengthLeft] = useState({
-    number: "96",
-    unit: absoluteLength.pixel
-  });
+  const { leftField, rightField } = useConverterHook();
 
-  const [lengthRight, setLengthRight] = useState({
-    number: "1",
-    unit: absoluteLength.inch
-  });
-
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, side: sideE) => {
-    const { value: elemValue } = e.target;
-
-    const convertedNumber = convert(
-      elemValue,
-      side === sideE.left ? lengthLeft.unit : lengthRight.unit,
-      side === sideE.right ? lengthLeft.unit : lengthRight.unit
-    );
-
-    setLengthLeft((prev) => ({
-      ...prev,
-      number: side === sideE.left ? elemValue : convertedNumber,
-    }));
-
-    setLengthRight((prev) => ({
-      ...prev,
-      number: side === sideE.right ? elemValue : convertedNumber,
-    }));
-  };
-
-  const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>, side: sideE) => {
-    const { value: elemValue } = e.target;
-
-    if (side === sideE.left) {
-      if (lengthRight.unit === elemValue) {
-        setLengthRight((prev) => ({
-          ...prev,
-          unit: lengthLeft.unit,
-          number: convert(lengthLeft.number, lengthRight.unit, lengthLeft.unit),
-        }));
-      } else {
-        setLengthRight((prev) => ({
-          ...prev,
-          number: convert(lengthLeft.number, elemValue, lengthRight.unit),
-        }));
-      }
-
-      setLengthLeft((prev) => ({
-        ...prev,
-        unit: elemValue as absoluteLength,
-      }));
-    } else if (side === sideE.right) {
-      if (lengthLeft.unit === elemValue) {
-        setLengthLeft((prev) => ({
-          ...prev,
-          unit: lengthRight.unit
-        }));
-
-        setLengthRight((prev) => ({
-          ...prev,
-          unit: elemValue as absoluteLength,
-          number: convert(lengthLeft.number, lengthRight.unit, elemValue),
-        }));
-      } else {
-        setLengthRight((prev) => ({
-          ...prev,
-          unit: elemValue as absoluteLength,
-          number: convert(lengthRight.number, lengthRight.unit, elemValue),
-        }));
-      }
-    }
-  };
   return (
     <main className="min-h-screen w-full p-12 bg-blue-100">
       <h1 className="text-3xl font-bold py-8 text-center">
@@ -132,28 +27,27 @@ export default function Home() {
             <input
               className="border py-1 px-2 w-20 focus:border-red"
               placeholder="Insert value"
-              value={lengthLeft.number}
-              onChange={(e) => { handleNumberChange(e, sideE.left) }}
+              value={leftField.value}
+              onChange={leftField.handleValueChange}
               min="0"
               type="number"
             />
-            <select value={lengthLeft.unit} name="unit" onChange={(e) => { handleUnitChange(e, sideE.left) }} className="py-1 px-2 w-20">
-              {Object.entries(absoluteLength).map(([key, value]) =>
-                <option value={value} title={key} key={value}>{value}</option>
+            <select value={leftField.unit} onChange={leftField.handleUnitChange} className="py-1 px-2 w-20">
+              {LengthUnitArr.map(({ name, value, label }) =>
+                <option value={value} title={name} key={value}>{label}</option>
               )}
             </select>
             <input
               className="border py-1 px-2 w-20 focus:border-red"
               placeholder="Insert value"
-              name="number"
-              value={lengthRight.number}
-              onChange={(e) => { handleNumberChange(e, sideE.right) }}
+              value={rightField.value}
+              onChange={rightField.handleValueChange}
               min="0"
               type="number"
             />
-            <select value={lengthRight.unit} name="unit" onChange={(e) => { handleUnitChange(e, sideE.right) }} className="py-1 px-2 w-20">
-              {Object.entries(absoluteLength).map(([key, value]) =>
-                <option value={value} title={key} key={value}>{value}</option>
+            <select value={rightField.unit} onChange={rightField.handleUnitChange} className="py-1 px-2 w-20">
+              {LengthUnitArr.map(({ name, value, label }) =>
+                <option value={value} title={name} key={value}>{label}</option>
               )}
             </select>
           </div>
@@ -166,11 +60,11 @@ export default function Home() {
               list="markersL"
               max="384"
               min="0"
-              value={lengthLeft.number}
+              value={leftField.value}
             // onChange={handleChange}
             />
             <datalist id="markersL" className="flex justify-around">
-              {rangeValues[lengthLeft.unit].map((item, index) =>
+              {rangeValues[leftField.unit].map((item, index) =>
                 <option key={"rgnL-" + index} value={item} ></option>
               )}
             </datalist>
@@ -183,18 +77,18 @@ export default function Home() {
               list="markersR"
               max="384"
               min="0"
-              value={lengthRight.number}
+              value={leftField.value}
             // onChange={handleChange}
             />
             <datalist id="markersR" className="flex justify-around">
-              {rangeValues[lengthRight.unit].map((item, index) =>
+              {rangeValues[leftField.unit].map((item, index) =>
                 <option key={"rgnR-" + index} value={item} ></option>
               )}
             </datalist>
           </div>
         </div>
         <div className="w-full overflow-x-auto border p-2">
-          <div className="h-60 w-24 border border-red-300" style={{ width: `${lengthLeft.number}${lengthLeft.unit === "point" ? "pt" : lengthLeft.unit}` }} />
+          <div className="h-60 w-24 border border-red-300" style={{ width: `${leftField.value}${fixUnit(leftField.unit)}` }} />
         </div>
       </section>
     </main>
