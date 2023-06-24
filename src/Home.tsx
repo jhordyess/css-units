@@ -1,21 +1,55 @@
-import { LengthUnitArr, fixUnit } from './utils'
+import { LengthUnit, LengthUnitArr, fixUnit } from './utils'
 import { useConverterHook } from './hooks'
 import { FocusEvent } from 'react'
 
 const rangeValues: {
-  [key: string]: string[]
+  [key in LengthUnit]: { range: number[]; max: number; step: number; rightPadding?: string }
 } = {
-  cm: ['0', '18.9', '37.8', '56.69', '96', '113.39', '188.98', '264.57', '377.95', '384'], //1 extra value
-  mm: ['0', '18.9', '37.8', '56.69', '96', '113.39', '188.98', '264.57', '377.95', '384'], //1 extra value
-  q: ['0', '18.9', '37.8', '56.69', '96', '113.39', '188.98', '264.57', '377.95', '384'], //1 extra value
-  in: ['0', '24', '48', '72', '96', '144', '192', '240', '384'],
-  pc: ['0', '16', '32', '64', '96', '128', '192', '256', '384'],
-  point: ['0', '16', '32', '64', '96', '128', '192', '256', '384'],
-  px: ['0', '16', '32', '64', '96', '128', '192', '256', '384']
+  [LengthUnit.Centimeter]: {
+    range: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], //11 len
+    max: 10.16, //384px to cm
+    step: 0.5,
+    rightPadding: '1.65%'
+  },
+  [LengthUnit.Millimeter]: {
+    range: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], //11 len
+    max: 101.6, //384px to mm
+    step: 5,
+    rightPadding: '1.65%'
+  },
+  [LengthUnit.QuarterMillimeter]: {
+    range: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400],
+    max: 406.4, //384px to q
+    step: 20,
+    rightPadding: '1.65%'
+  },
+  [LengthUnit.Inch]: {
+    range: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+    max: 4, //384px to in
+    step: 0.25
+  },
+  [LengthUnit.Pica]: {
+    // range: [0, 3, 6, 9, 12, 15, 18, 21, 24],
+    range: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
+    max: 24, //384px to pc
+    step: 1
+  },
+  [LengthUnit.Point]: {
+    // range: [0, 36, 72, 108, 144, 180, 216, 252, 288],
+    range: [0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288],
+    max: 288, //384px to pt
+    step: 12
+  },
+  [LengthUnit.Pixel]: {
+    // range: [0, 48, 96, 144, 192, 240, 288, 336, 384],
+    range: [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384],
+    max: 384, //384px to px
+    step: 16
+  }
 }
 
 export default function Home() {
-  const { leftField, rightField } = useConverterHook()
+  const { leftField, rightField, rangeField } = useConverterHook()
 
   const autoSelect = (e: FocusEvent<HTMLInputElement>) => {
     e.target.select()
@@ -34,6 +68,7 @@ export default function Home() {
               onChange={leftField.handleValueChange}
               min="0"
               type="number"
+              step={rangeValues[leftField.unit].step}
               onFocus={autoSelect}
             />
             <select
@@ -54,6 +89,7 @@ export default function Home() {
               onChange={rightField.handleValueChange}
               min="0"
               type="number"
+              step={rangeValues[rightField.unit].step}
               onFocus={autoSelect}
             />
             <select
@@ -69,37 +105,68 @@ export default function Home() {
             </select>
           </div>
         </div>
-        <div className="w-full mt-6">
+        <div className="w-full mt-6 flex flex-col gap-6">
           <div>
             <input
               className="w-full"
               type="range"
               list="markersL"
-              max="384"
               min="0"
-              value={leftField.value}
-              // onChange={handleChange}
+              max={rangeValues[leftField.unit].max}
+              step="0.01"
+              value={leftField.value || '0'}
+              onChange={rangeField.handleRangeLeft}
             />
-            <datalist id="markersL" className="flex justify-around">
-              {rangeValues[leftField.unit].map((item, index) => (
-                <option key={'rgnL-' + index} value={item}></option>
+            <datalist
+              id="markersL"
+              className="w-full flex flex-col justify-between"
+              style={{
+                writingMode: 'vertical-lr',
+                paddingRight: rangeValues[leftField.unit].rightPadding || 0
+              }}
+            >
+              {rangeValues[leftField.unit].range.map((item, index) => (
+                <option
+                  key={'rgnL-' + index}
+                  value={item}
+                  label={String(item)}
+                  className={`flex justify-center p-0 m-0 ${
+                    (index + 1) % 2 === 0 ? 'md:block hidden' : 'block'
+                  }`}
+                  style={{ transform: 'rotate(-90deg)' }}
+                />
               ))}
             </datalist>
           </div>
-
           <div>
             <input
               className="w-full"
               type="range"
               list="markersR"
-              max="384"
               min="0"
-              value={leftField.value}
-              // onChange={handleChange}
+              max={rangeValues[rightField.unit].max}
+              step="0.01"
+              value={rightField.value || '0'}
+              onChange={rangeField.handleRangeRight}
             />
-            <datalist id="markersR" className="flex justify-around">
-              {rangeValues[leftField.unit].map((item, index) => (
-                <option key={'rgnR-' + index} value={item}></option>
+            <datalist
+              id="markersR"
+              className="w-full flex flex-col justify-between"
+              style={{
+                writingMode: 'vertical-lr',
+                paddingRight: rangeValues[rightField.unit].rightPadding || 0
+              }}
+            >
+              {rangeValues[rightField.unit].range.map((item, index) => (
+                <option
+                  key={'rgnR-' + index}
+                  value={item}
+                  label={String(item)}
+                  className={`flex justify-center p-0 m-0 ${
+                    (index + 1) % 2 === 0 ? 'md:block hidden' : 'block'
+                  }`}
+                  style={{ transform: 'rotate(-90deg)' }}
+                />
               ))}
             </datalist>
           </div>

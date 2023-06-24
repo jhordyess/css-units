@@ -5,19 +5,17 @@ import { LengthUnit, Field } from './utils'
 type converterState = {
   leftField: { value: string; unit: LengthUnit }
   rightField: { value: string; unit: LengthUnit }
-  rangeField: { value: string }
 }
 
 const defConverterVals: converterState = {
   leftField: {
-    value: '96',
-    unit: LengthUnit.Pixel
-  },
-  rightField: {
     value: '1',
     unit: LengthUnit.Inch
   },
-  rangeField: { value: '96' }
+  rightField: {
+    value: '96',
+    unit: LengthUnit.Pixel
+  }
 }
 
 export const useConverterHook = (initialState: converterState = defConverterVals) => {
@@ -40,16 +38,15 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       ? [inputValue, convertedValue]
       : [convertedValue, inputValue]
 
-    setFields(({ leftField, rightField, rangeField }) => ({
+    setFields(prevFields => ({
       leftField: {
-        ...leftField,
+        ...prevFields.leftField,
         value: updatedLeftVal
       },
       rightField: {
-        ...rightField,
+        ...prevFields.rightField,
         value: updatedRightVal
-      },
-      rangeField
+      }
     }))
   }
 
@@ -77,17 +74,22 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       ? [selectedUnit, isOppositeField ? leftField.unit : rightField.unit] //rightField.unit unnecessary to update
       : [isOppositeField ? rightField.unit : leftField.unit, selectedUnit] //leftField.unit unnecessary to update
 
-    setFields(({ leftField, rightField, rangeField }) => ({
+    setFields(prevFields => ({
       leftField: {
-        ...leftField,
+        ...prevFields.leftField,
         unit: updateLeftUnit
       },
       rightField: {
-        ...rightField,
+        ...prevFields.rightField,
         unit: updateRightUnit,
         value: updatedRightVal
       },
-      rangeField
+      rangeField: {
+        value:
+          sourceValue === LengthUnit.Pixel
+            ? sourceValue
+            : convert(sourceValue, sourceUnit, LengthUnit.Pixel)
+      }
     }))
   }
 
@@ -111,6 +113,11 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       handleUnitChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
         handleUnitChange(e, Field.Right)
       }
+    },
+    rangeField: {
+      handleRangeLeft: (e: React.ChangeEvent<HTMLInputElement>) => handleValueChange(e, Field.Left),
+      handleRangeRight: (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleValueChange(e, Field.Right)
     }
   }
 }
