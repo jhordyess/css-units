@@ -10,13 +10,13 @@ const generate = ({
   step: number
   factor: number
 }): { list: number[]; percent: number } => {
-  const maximumValue = Math.floor(maxBoxWidth / step) * step
+  const maximumValue = Math.floor(maxBoxWidth / step) * step || step
 
   const newStep = Math.ceil(maximumValue / factor / step) * step
 
   const list = Array.from(
     {
-      length: maxBoxWidth / newStep + 1
+      length: maxBoxWidth / newStep + 1 || 0
     },
     (_: number, index: number) => index * newStep
   )
