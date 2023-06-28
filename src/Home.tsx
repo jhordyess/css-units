@@ -8,7 +8,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full bg-classy-background p-6 sm:p-12">
-      <h1 className="py-8 text-center text-3xl font-bold">CSS Units</h1>
+      <h1 className="pb-6 text-center text-3xl font-bold">CSS Units</h1>
+      <h2 className="pb-6 text-center text-xl font-bold">Absolute units</h2>
       <section className="mx-auto mb-8 flex max-w-lg flex-wrap justify-center gap-8">
         <InputBox
           handleUnit={leftField.handleUnitChange}
@@ -35,7 +36,7 @@ export default function Home() {
         />
         <div className="border border-black bg-classy-accent">
           <div
-            className={`h-32 w-24 border-r-2 border-dashed border-classy-primary bg-classy-base ${
+            className={`h-32 w-24 border-r border-dashed border-classy-primary bg-classy-base ${
               boxDiv.isMax ? 'animate-pulse' : ''
             }`}
             style={{ width: boxDiv.width || 0 }}
@@ -49,6 +50,24 @@ export default function Home() {
           factor={rangeValues[rightField.unit].factor}
         />
       </section>
+      <footer className="w-full pt-6 text-center">
+        Made with 💪 by&nbsp;
+        <a
+          href="https://www.jhordyess.com"
+          target="_blank"
+          className="text-classy-link hover:text-classy-hover"
+        >
+          Jhordyess
+        </a>
+        <br />
+        <a
+          href="https://github.com/jhordyess/css-units"
+          target="_blank"
+          className="text-classy-link hover:text-classy-hover"
+        >
+          👉 View on GitHub
+        </a>
+      </footer>
     </main>
   )
 }

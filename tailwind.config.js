@@ -9,7 +9,9 @@ export default {
           primary: '#40493b',
           secondary: '#9cb190',
           background: '#b0d6e0',
-          accent: '#7b9fa9'
+          accent: '#7b9fa9',
+          link: '#0071c7',
+          hover: '#00c0ff'
         }
       }
     }
