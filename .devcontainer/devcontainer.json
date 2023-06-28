@@ -6,7 +6,8 @@
       "extensions": [
         "bradlc.vscode-tailwindcss",
         "dsznajder.es7-react-js-snippets",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "omkarbhede.tailwindcss-tune"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh"
