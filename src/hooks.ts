@@ -5,6 +5,7 @@ import { LengthUnit, Field } from './utils'
 type converterState = {
   leftField: { value: string; unit: LengthUnit }
   rightField: { value: string; unit: LengthUnit }
+  rangeField: { value: string }
 }
 
 const defConverterVals: converterState = {
@@ -15,6 +16,9 @@ const defConverterVals: converterState = {
   rightField: {
     value: '96',
     unit: LengthUnit.Pixel
+  },
+  rangeField: {
+    value: '96'
   }
 }
 
@@ -46,6 +50,12 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       rightField: {
         ...prevFields.rightField,
         value: updatedRightVal
+      },
+      rangeField: {
+        value:
+          sourceUnit === LengthUnit.Pixel
+            ? inputValue
+            : convert(inputValue, sourceUnit, LengthUnit.Pixel)
       }
     }))
   }
@@ -86,7 +96,7 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       },
       rangeField: {
         value:
-          sourceValue === LengthUnit.Pixel
+          sourceUnit === LengthUnit.Pixel
             ? sourceValue
             : convert(sourceValue, sourceUnit, LengthUnit.Pixel)
       }
@@ -117,7 +127,8 @@ export const useConverterHook = (initialState: converterState = defConverterVals
     rangeField: {
       handleRangeLeft: (e: React.ChangeEvent<HTMLInputElement>) => handleValueChange(e, Field.Left),
       handleRangeRight: (e: React.ChangeEvent<HTMLInputElement>) =>
-        handleValueChange(e, Field.Right)
+        handleValueChange(e, Field.Right),
+      value: fields.rangeField.value
     }
   }
 }
