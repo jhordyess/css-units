@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { convert } from './math'
 import { LengthUnit, Field } from './utils'
 
-type converterState = {
+type ConverterState = {
   leftField: { value: string; unit: LengthUnit }
   rightField: { value: string; unit: LengthUnit }
-  rangeField: { value: string }
+  boxDiv: { width: number; isMax: boolean }
 }
 
-const defConverterVals: converterState = {
+const defaultConverterValues: ConverterState = {
   leftField: {
     value: '1',
     unit: LengthUnit.Inch
@@ -17,14 +17,49 @@ const defConverterVals: converterState = {
     value: '96',
     unit: LengthUnit.Pixel
   },
-  rangeField: {
-    value: '96'
-  }
+  boxDiv: { width: 96, isMax: false }
 }
 
-export const useConverterHook = (initialState: converterState = defConverterVals) => {
+type BoxPadding = {
+  minWidth: number
+  minPadding: number
+  maxPadding: number
+}
+
+const defaultBoxPadding = {
+  minWidth: 640,
+  minPadding: 24,
+  maxPadding: 48
+}
+
+export const useConverterHook = (
+  boxPadding: BoxPadding = defaultBoxPadding,
+  initialState: ConverterState = defaultConverterValues
+) => {
   const [fields, setFields] = useState(initialState)
 
+  const [viewportWidth, setViewportWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 0
+  )
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => {
+      setViewportWidth(window.innerWidth)
+      // if (fields.boxDiv.width > maxWidth) {
+      //   setFields({
+      //     ...fields,
+      //     boxDiv: { width: maxWidth, isMax: true }
+      //   })
+      // }
+    })
+  }
+
+  const maxWidth =
+    viewportWidth < boxPadding.minWidth
+      ? viewportWidth - boxPadding.minPadding * 2
+      : viewportWidth - boxPadding.maxPadding * 2
+
+  // Handles value changes in the input fields
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>, field: Field) => {
     const { value: inputValue } = e.target
 
@@ -42,65 +77,57 @@ export const useConverterHook = (initialState: converterState = defConverterVals
       ? [inputValue, convertedValue]
       : [convertedValue, inputValue]
 
-    setFields(prevFields => ({
+    const boxWidth =
+      sourceUnit === LengthUnit.Pixel
+        ? Number(inputValue)
+        : Number(convert(inputValue, sourceUnit, LengthUnit.Pixel))
+    const boxIsMax = boxWidth > maxWidth
+
+    setFields({
       leftField: {
-        ...prevFields.leftField,
+        ...leftField,
         value: updatedLeftVal
       },
       rightField: {
-        ...prevFields.rightField,
+        ...rightField,
         value: updatedRightVal
       },
-      rangeField: {
-        value:
-          sourceUnit === LengthUnit.Pixel
-            ? inputValue
-            : convert(inputValue, sourceUnit, LengthUnit.Pixel)
-      }
-    }))
+      boxDiv: { width: boxIsMax ? maxWidth : boxWidth, isMax: boxIsMax }
+    })
   }
 
+  // Handles unit changes in the dropdown select
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>, field: Field) => {
     const selectedUnit = e.target.value as LengthUnit
 
     const { leftField, rightField } = fields
 
-    const [isLeft, isOppositeField] =
-      field === Field.Left
-        ? [true, rightField.unit === selectedUnit]
-        : [false, leftField.unit === selectedUnit] // True is left, False is right
+    const isLeft = field === Field.Left // True is left, False is right
 
-    const [sourceValue, sourceUnit, targetUnit] = isLeft
-      ? [
-          leftField.value,
-          isOppositeField ? rightField.unit : selectedUnit,
-          isOppositeField ? leftField.unit : rightField.unit
-        ]
-      : [isOppositeField ? leftField.value : rightField.value, rightField.unit, selectedUnit]
+    if (rightField.unit === selectedUnit || leftField.unit === selectedUnit)
+      setFields({
+        ...fields,
+        rightField: { ...leftField },
+        leftField: { ...rightField }
+      })
+    else {
+      const sourceField = isLeft ? leftField : rightField
 
-    const updatedRightVal = convert(sourceValue, sourceUnit, targetUnit)
-
-    const [updateLeftUnit, updateRightUnit] = isLeft
-      ? [selectedUnit, isOppositeField ? leftField.unit : rightField.unit] //rightField.unit unnecessary to update
-      : [isOppositeField ? rightField.unit : leftField.unit, selectedUnit] //leftField.unit unnecessary to update
-
-    setFields(prevFields => ({
-      leftField: {
-        ...prevFields.leftField,
-        unit: updateLeftUnit
-      },
-      rightField: {
-        ...prevFields.rightField,
-        unit: updateRightUnit,
-        value: updatedRightVal
-      },
-      rangeField: {
-        value:
-          sourceUnit === LengthUnit.Pixel
-            ? sourceValue
-            : convert(sourceValue, sourceUnit, LengthUnit.Pixel)
+      const updatedField = {
+        value: convert(sourceField.value, sourceField.unit, selectedUnit),
+        unit: selectedUnit
       }
-    }))
+
+      const [updatedLeftField, updatedRightField] = isLeft
+        ? [updatedField, rightField]
+        : [leftField, updatedField]
+
+      setFields({
+        ...fields,
+        leftField: { ...updatedLeftField },
+        rightField: { ...updatedRightField }
+      })
+    }
   }
 
   return {
@@ -124,11 +151,7 @@ export const useConverterHook = (initialState: converterState = defConverterVals
         handleUnitChange(e, Field.Right)
       }
     },
-    rangeField: {
-      handleRangeLeft: (e: React.ChangeEvent<HTMLInputElement>) => handleValueChange(e, Field.Left),
-      handleRangeRight: (e: React.ChangeEvent<HTMLInputElement>) =>
-        handleValueChange(e, Field.Right),
-      value: fields.rangeField.value
-    }
+    boxDiv: fields.boxDiv,
+    maxWidth
   }
 }
