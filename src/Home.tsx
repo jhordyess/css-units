@@ -1,4 +1,4 @@
-import { rangeValues } from './utils'
+import { fixUnit, rangeValues } from './utils'
 import { useConverterHook } from './hooks'
 import RangeInput from './Components/Rule'
 import InputBox from './Components/InputBox'
@@ -10,7 +10,7 @@ export default function Home() {
     <main className="min-h-screen w-full bg-classy-background p-6 sm:p-12">
       <h1 className="pb-6 text-center text-3xl font-bold">CSS Units</h1>
       <h2 className="pb-6 text-center text-xl font-bold">Absolute units</h2>
-      <section className="mx-auto mb-8 flex max-w-lg flex-wrap justify-center gap-8">
+      <section className="mx-auto mb-6 flex max-w-lg flex-wrap justify-center gap-8">
         <InputBox
           handleUnit={leftField.handleUnitChange}
           handleValue={leftField.handleValueChange}
@@ -39,7 +39,7 @@ export default function Home() {
             className={`h-32 w-24 border-r border-dashed border-classy-primary bg-classy-base ${
               boxDiv.isMax ? 'animate-pulse' : ''
             }`}
-            style={{ width: boxDiv.width || 0 }}
+            style={{ width: `${leftField.value}${fixUnit(leftField.unit)}` || 0 }}
           />
         </div>
         <RangeInput
