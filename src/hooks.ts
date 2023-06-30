@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { convert, defaultPPI, updatePPI } from './math'
 import { LengthUnit, Field } from './utils'
 
@@ -94,7 +94,11 @@ export const useConverterHook = (
 
   const handleCustomPPIEnable = (e: ChangeEvent<HTMLInputElement>) => {
     const { checked: isEnable } = e.target
-    let updateCustomPPI: any = {}
+    const updateCustomPPI: {
+      screenDiagonalUnit?: LengthUnit.Inch | LengthUnit.Centimeter
+      screenDiagonal?: string
+      ppi?: string
+    } = {}
     if (!isEnable) {
       if (customPPI.screenDiagonalUnit !== LengthUnit.Inch)
         updateCustomPPI['screenDiagonalUnit'] = LengthUnit.Inch

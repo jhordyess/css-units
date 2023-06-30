@@ -1,4 +1,4 @@
-import { fixUnit, rangeValues } from './utils'
+import { rangeValues } from './utils'
 import { useConverterHook } from './hooks'
 import RangeInput from './Components/Rule'
 import InputBox from './Components/InputBox'

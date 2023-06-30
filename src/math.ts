@@ -31,7 +31,7 @@ export const updatePPI = (
   diagonal: string,
   diagonalUnit: LengthUnit.Inch | LengthUnit.Centimeter
 ): string => {
-  let ppiStr: string = '96'
+  let ppiStr = '96'
   try {
     if (!diagonal || !height || !width) throw new Error('Missing values')
     const fixDiagonal =
@@ -46,7 +46,6 @@ export const updatePPI = (
     ppiStr = math.round(ppi, 2).toString()
   } catch (error) {
     console.warn("Can't calculate PPI")
-  } finally {
-    return ppiStr
   }
+  return ppiStr
 }
