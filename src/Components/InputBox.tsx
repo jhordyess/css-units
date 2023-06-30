@@ -16,9 +16,9 @@ export default function InputBox({
   className?: string
 }) {
   return (
-    <div
+    <fieldset
       className={
-        'flex items-center rounded-md border border-classy-accent bg-classy-base px-2 text-sm sm:text-base' +
+        'flex items-center rounded-md border border-classy-primary bg-classy-base px-2 text-sm sm:text-base' +
         className
       }
     >
@@ -34,7 +34,7 @@ export default function InputBox({
           e.target.select()
         }}
       />
-      <div className="h-6 border-l border-classy-accent "></div>
+      <div className="h-6 border-l border-classy-primary " />
       <select value={unit} onChange={handleUnit} className="h-6 w-14 bg-transparent pl-2">
         {LengthUnitArr.map(({ name, value, label }) => (
           <option value={value} title={name} key={value}>
@@ -42,6 +42,6 @@ export default function InputBox({
           </option>
         ))}
       </select>
-    </div>
+    </fieldset>
   )
 }
