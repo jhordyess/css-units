@@ -1,1 +1,32 @@
-# css-units
+# CSS units
+
+## Description
+
+### Technologies Used
+
+- JS Libraries: [ReactJS](https://reactjs.org/), [Math.js](https://mathjs.org/)
+- Programming Language: [TypeScript](https://www.typescriptlang.org/)
+- Build tool: [Vite](https://vitejs.dev/)
+- Hosting: [GitHub Pages](https://pages.github.com/)
+- Dev Environment: [VSCode](https://code.visualstudio.com/) with [dev containers](https://code.visualstudio.com/docs/remote/containers) in [Pop!_OS](https://pop.system76.com/)
+
+### Online
+
+### Screenshot
+
+## To-Do
+
+- Add resize event support.
+- Add more features 🤔
+
+## Contribution
+
+If you would like to contribute to the project, open an issue or make a pull request on the repository.
+
+## License
+
+© 2023> [Jhordyess](https://github.com/jhordyess). Under the [MIT](https://choosealicense.com/licenses/mit/) license. See the [LICENSE](./LICENSE) file for more details.
+
+---
+
+Made with 💪 by [Jhordyess](https://www.jhordyess.com/)
