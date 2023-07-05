@@ -5,6 +5,7 @@
 ### Technologies Used
 
 - JS Libraries: [ReactJS](https://reactjs.org/), [Math.js](https://mathjs.org/)
+- CSS Libraries: [TailwindCSS](https://tailwindcss.com/)
 - Programming Language: [TypeScript](https://www.typescriptlang.org/)
 - Build tool: [Vite](https://vitejs.dev/)
 - Hosting: [GitHub Pages](https://pages.github.com/)
