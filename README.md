@@ -1,6 +1,10 @@
 # CSS units
 
+React application that converts absolute units used in CSS.
+
 ## Description
+
+Additionally, it includes a dynamic div element that adjusts the width based on user input. The app also allows to customize the conversion factor from pixels to inches, enabling precise on-screen measurements.
 
 ### Technologies Used
 
