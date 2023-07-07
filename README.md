@@ -4,7 +4,7 @@ React application that converts absolute units used in CSS.
 
 ## Description
 
-Additionally, it includes a dynamic div element that adjusts the width based on user input. The app also allows to customize the conversion factor from pixels to inches, enabling precise on-screen measurements.
+Additionally, it includes a dynamic div element that adjusts the width, based on user input. The app also allows to customize the conversion factor from pixels to inches, enabling precise on-screen measurements.
 
 ### Technologies Used
 
@@ -17,7 +17,11 @@ Additionally, it includes a dynamic div element that adjusts the width based on 
 
 ### Online
 
+Visit the project at: <https://jhordyess.github.io/css-units/>.
+
 ### Screenshot
+
+![Home](https://res.cloudinary.com/jhordyess/image/upload/v1688763609/css-units/home-page_ss9mfr.png)
 
 ## To-Do
 
