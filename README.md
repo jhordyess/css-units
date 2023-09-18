@@ -13,7 +13,7 @@ Additionally, it includes a dynamic div element that adjusts the width, based on
 - Programming Language: [TypeScript](https://www.typescriptlang.org/)
 - Build tool: [Vite](https://vitejs.dev/)
 - Hosting: [GitHub Pages](https://pages.github.com/)
-- Dev Environment: [VSCode](https://code.visualstudio.com/) with [dev containers](https://code.visualstudio.com/docs/remote/containers) in [Pop!_OS](https://pop.system76.com/)
+- Dev Environment: [VSCode](https://code.visualstudio.com/) with [dev containers](https://code.visualstudio.com/docs/remote/containers) in [Pop!\_OS](https://pop.system76.com/)
 
 ### Online
 

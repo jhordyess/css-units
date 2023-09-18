@@ -1,7 +1,7 @@
 import { rangeValues } from './utils'
 import { useConverterHook } from './hooks'
-import RangeInput from './Components/Rule'
-import InputBox from './Components/InputBox'
+import RangeInput from './components/Rule'
+import InputBox from './components/InputBox'
 
 export default function Home() {
   const { leftField, rightField, maxWidth, boxDiv, customPPI } = useConverterHook()
