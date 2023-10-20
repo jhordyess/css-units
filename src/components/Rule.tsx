@@ -10,20 +10,24 @@ const generate = ({
   step: number
   factor: number
 }): { list: number[]; percent: number } => {
-  const maximumValue = Math.floor(maxBoxWidth / step) * step || step
+  try {
+    const maximumValue = Math.floor(maxBoxWidth / step) * step || step
 
-  const newStep = Math.ceil(maximumValue / factor / step) * step
+    const newStep = Math.ceil(maximumValue / factor / step) * step
 
-  const list = Array.from(
-    {
-      length: maxBoxWidth / newStep + 1 || 0
-    },
-    (_: number, index: number) => index * newStep
-  )
+    const list = Array.from(
+      {
+        length: maxBoxWidth / newStep + 1 || 0
+      },
+      (_: number, index: number) => index * newStep
+    )
 
-  const percent = (100 * (maxBoxWidth % newStep)) / maxBoxWidth
+    const percent = (100 * (maxBoxWidth % newStep)) / maxBoxWidth
 
-  return { list, percent }
+    return { list, percent }
+  } catch (error) {
+    return { list: [], percent: 0 }
+  }
 }
 
 export default function RangeInput({
@@ -50,6 +54,7 @@ export default function RangeInput({
       : factor
   if (unit !== LengthUnit.Pixel)
     maxBoxWidth = Number(convert(String(maxBoxWidth), LengthUnit.Pixel, unit))
+
   const { list, percent } = generate({ maxBoxWidth, step, factor })
 
   return (

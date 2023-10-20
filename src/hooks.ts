@@ -66,6 +66,7 @@ export const useConverterHook = (
       )
       handleValueChange(fields.leftField.value, Field.Left)
     }
+
     setCustomPPI({
       ...customPPI,
       ppi,

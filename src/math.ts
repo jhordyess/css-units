@@ -14,11 +14,12 @@ math.config({
 })
 
 export const convert = (value: string, unit: LengthUnit, newUnit: LengthUnit): string => {
-  return Number(value) > 0
-    ? math
-        .number(math.round(math.evaluate(`${value} ${unit} to ${newUnit}`).toNumeric(newUnit), 2))
-        .toString()
-    : '0'
+  try {
+    const number = Number(value)
+    return number > 0 ? math.unit(number, unit).toNumber(newUnit).toFixed(2) : '0'
+  } catch (error) {
+    return '0'
+  }
 }
 
 export const defaultPPI = () => {
